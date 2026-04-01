@@ -34,7 +34,7 @@ jobs:
         os:
           - ubuntu-24.04
         suffix:
-          - "linux-gnu"
+          - "-linux-gnu"
         include:
           - env: "3.14"
             os: windows-2025
