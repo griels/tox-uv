@@ -70,7 +70,7 @@ jobs:
         run: |
           VERSION="${{ matrix.env }}"
           VERSION="${VERSION#meta-}"
-          uv python install --python-preference only-managed "$VERSION"
+          uv python install --python-preference only-managed "cpython-$VERSION-x86_64{{ matrix.suffix || '-linux' }}"
       - name: Setup test suite
         run: tox run -vv --notest --skip-missing-interpreters false -e ${{ matrix.env }}
         env:
