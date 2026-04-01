@@ -365,9 +365,15 @@ class UvVenv(Python, ABC):
                     "i686": "i686",
                 }
 
-                uv_arch = arch_map.get((self.base_python.machine or "").lower())
-                uv_libc = os.environ.get("UV_LIBC", "gnu" if uv_os == "linux" else "none")
-                version_spec = f"{uv_imp}-{base.major}.{base.minor}{free_threaded_tag}-{uv_os}-{uv_arch}-{uv_libc}"
+                libc_map = {
+                    "linux": self.base_python.extra.get("libc", "gnu").replace("glibc", "gnu").replace("musl", "musl"),
+                    "windows": "msvc",
+                }
+                uv_arch = arch_map.get((self.base_python.machine or "").lower(), "")
+                uv_libc = libc_map.get(uv_os, "none")
+                version_spec = f"{uv_imp}-{base.major}.{base.minor}{free_threaded_tag}" + (
+                    f"-{uv_os}-{uv_arch}-{uv_libc}" if all([uv_arch, uv_os, uv_libc]) else ""
+                )
             else:
                 version_spec = f"{uv_imp}{base.major}.{base.minor}{free_threaded_tag}"
         return version_spec
@@ -395,7 +401,7 @@ class UvVenv(Python, ABC):
             version=res["version"],
             is_64=res["is_64"],
             platform=sys.platform,
-            extra={},
+            extra={"libc": res["libc"][0]},
         )
 
 
