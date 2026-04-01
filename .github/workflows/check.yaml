@@ -31,9 +31,10 @@ jobs:
           - type
           - dev
           - pkg_meta
-        suffix: "linux-gnu"
         os:
           - ubuntu-24.04
+        suffix:
+          - "linux-gnu"
         include:
           - env: "3.14"
             os: windows-2025
