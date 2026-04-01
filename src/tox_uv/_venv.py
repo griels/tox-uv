@@ -348,6 +348,7 @@ class UvVenv(Python, ABC):
                 "darwin": "macos",
                 "linux": "linux",
                 "windows": "windows",
+                "win32": "windows"
             }
             uv_os = os_map.get(self.base_python.platform.lower(), "")
             arch_map = {
@@ -362,7 +363,6 @@ class UvVenv(Python, ABC):
 
             libc_map = {
                 "linux": self.base_python.extra.get("libc", "gnu").replace("glibc", "gnu"),
-                "windows": "msvc",
             }
             uv_arch_fallback_map = {"windows": {32: "x86", 64: "x86_64"}}
             uv_arch_fallback = (
@@ -370,8 +370,8 @@ class UvVenv(Python, ABC):
                 if isinstance(architecture, int)
                 else ""
             )
-            base_python_machine = (self.base_python.machine or uv_arch_fallback).lower()
-            uv_arch = arch_map.get(base_python_machine, "")
+            base_python_machine = (self.base_python.machine or "").lower()
+            uv_arch = arch_map.get(base_python_machine, uv_arch_fallback)
             uv_libc = libc_map.get(uv_os, "none")
             version_spec = f"{uv_imp}-{base.major}.{base.minor}{free_threaded_tag}" + (
                 f"-{uv_os}-{uv_arch}-{uv_libc}" if all([uv_arch, uv_os, uv_libc]) else ""

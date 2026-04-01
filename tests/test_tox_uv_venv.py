@@ -953,7 +953,7 @@ def test_env_version_spec_libc_windows() -> None:
     )
     uv_venv.set_base_python(python_info)
     with mock.patch("sys.version_info", (0, 0, 0)):
-        assert uv_venv.env_version_spec() == "cpython-3.11-windows-x86_64-msvc"
+        assert uv_venv.env_version_spec() == "cpython-3.11-windows-x86_64-none"
 
 
 def test_relative_workdir_with_changedir(tox_project: ToxProjectCreator) -> None:
