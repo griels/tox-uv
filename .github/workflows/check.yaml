@@ -33,21 +33,19 @@ jobs:
           - pkg_meta
         os:
           - ubuntu-24.04
-        suffix:
-          - ""
         include:
           - env: "3.14"
             os: windows-2025
-            suffix: -windows
+            suffix: -windows-msvc
           - env: "3.14"
             os: macos-15
-            suffix: -macos
-          - env: "meta-3.14-arm64-macos"
+            suffix: -macos-none
+          - env: "meta-3.14-arm64"
             os: macos-15
-            suffix: -macos
-          - env: "meta-3.14-x86_64-macos"
+            suffix: -macos-none
+          - env: "meta-3.14-x86_64"
             os: macos-15
-            suffix: -macos
+            suffix: -macos-none
           - env: meta-3.14
           - env: meta-3.13
           - env: meta-3.12
