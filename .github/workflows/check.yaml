@@ -34,20 +34,20 @@ jobs:
         os:
           - ubuntu-24.04
         suffix:
-          - "-linux-gnu"
+          - "-linux-x86_64-gnu"
         include:
           - env: "3.14"
             os: windows-2025
-            suffix: -windows-msvc
+            suffix: -windows-x86_64-msvc
           - env: "3.14"
             os: macos-15
-            suffix: -macos-none
+            suffix: -macos-aarch64-none
           - env: "meta-3.14-arm64"
             os: macos-15
             suffix: -macos-none
           - env: "meta-3.14-x86_64"
             os: macos-15
-            suffix: -macos-none
+            suffix: -macos-x86_64-none
           - env: meta-3.14
           - env: meta-3.13
           - env: meta-3.12
@@ -76,7 +76,7 @@ jobs:
             UV_VERSION="cpython-$VERSION"
           else
             # For non-arch-specific values, keep existing behavior.
-            UV_VERSION="cpython-$VERSION-x86_64${{ matrix.suffix }}"
+            UV_VERSION="cpython-$VERSION${{ matrix.suffix }}"
           fi
 
           uv python install --python-preference only-managed "$UV_VERSION"
