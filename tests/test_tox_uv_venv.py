@@ -714,8 +714,8 @@ def test_env_version_spec_machine_none_with_architecture() -> None:
     )
     uv_venv.set_base_python(python_info)
     with mock.patch("sys.version_info", (0, 0, 0)):  # prevent picking sys.executable
-        # When machine is None, uv_arch becomes None, so version_spec includes None
-        assert uv_venv.env_version_spec() == "cpython-3.11-linux-None-gnu"
+        # When machine is None, uv_arch becomes empty and no os/arch/libc suffix is appended
+        assert uv_venv.env_version_spec() == "cpython-3.11"
 
 
 @pytest.mark.parametrize(
@@ -888,6 +888,72 @@ def test_env_version_spec_machine_arm64_macos_no_architecture() -> None:
     with mock.patch("sys.version_info", (0, 0, 0)):  # prevent picking sys.executable
         # On macOS, arm64 always maps to aarch64 regardless of architecture setting
         assert uv_venv.env_version_spec() == "cpython-3.11-macos-aarch64-none"
+
+
+def test_env_version_spec_libc_musl_linux() -> None:
+    uv_venv = _TestUvVenv(create_args=mock.MagicMock())
+    python_info = PythonInfo(
+        implementation="cpython",
+        version_info=VersionInfo(
+            major=3,
+            minor=11,
+            micro=9,
+            releaselevel="",
+            serial=0,
+        ),
+        version="",
+        is_64=True,
+        platform="linux",
+        extra={"architecture": None, "libc": "musl"},
+        machine="x86_64",
+    )
+    uv_venv.set_base_python(python_info)
+    with mock.patch("sys.version_info", (0, 0, 0)):
+        assert uv_venv.env_version_spec() == "cpython-3.11-linux-x86_64-musl"
+
+
+def test_env_version_spec_libc_glibc_linux() -> None:
+    uv_venv = _TestUvVenv(create_args=mock.MagicMock())
+    python_info = PythonInfo(
+        implementation="cpython",
+        version_info=VersionInfo(
+            major=3,
+            minor=11,
+            micro=9,
+            releaselevel="",
+            serial=0,
+        ),
+        version="",
+        is_64=True,
+        platform="linux",
+        extra={"architecture": None, "libc": "glibc"},
+        machine="x86_64",
+    )
+    uv_venv.set_base_python(python_info)
+    with mock.patch("sys.version_info", (0, 0, 0)):
+        assert uv_venv.env_version_spec() == "cpython-3.11-linux-x86_64-gnu"
+
+
+def test_env_version_spec_libc_windows() -> None:
+    uv_venv = _TestUvVenv(create_args=mock.MagicMock())
+    python_info = PythonInfo(
+        implementation="cpython",
+        version_info=VersionInfo(
+            major=3,
+            minor=11,
+            micro=9,
+            releaselevel="",
+            serial=0,
+        ),
+        version="",
+        is_64=True,
+        platform="windows",
+        extra={"architecture": None, "libc": "anything"},
+        machine="x86_64",
+    )
+    uv_venv.set_base_python(python_info)
+    with mock.patch("sys.version_info", (0, 0, 0)):
+        assert uv_venv.env_version_spec() == "cpython-3.11-windows-x86_64-msvc"
 
 
 def test_relative_workdir_with_changedir(tox_project: ToxProjectCreator) -> None:

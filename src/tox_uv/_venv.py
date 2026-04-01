@@ -354,7 +354,7 @@ class UvVenv(Python, ABC):
                     "linux": "linux",
                     "windows": "windows",
                 }
-                uv_os = os_map.get(self.base_python.platform.lower())
+                uv_os = os_map.get(self.base_python.platform.lower(), "")
                 arch_map = {
                     "arm64": "aarch64",
                     "aarch64": "aarch64",
@@ -366,7 +366,7 @@ class UvVenv(Python, ABC):
                 }
 
                 libc_map = {
-                    "linux": self.base_python.extra.get("libc", "gnu").replace("glibc", "gnu").replace("musl", "musl"),
+                    "linux": self.base_python.extra.get("libc", "gnu").replace("glibc", "gnu"),
                     "windows": "msvc",
                 }
                 uv_arch = arch_map.get((self.base_python.machine or "").lower(), "")
