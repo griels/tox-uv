@@ -336,46 +336,42 @@ class UvVenv(Python, ABC):
         imp = self.base_python.impl_lower
         architecture = self.base_python.extra.get("architecture")
         free_threaded = self.base_python.free_threaded
-        if architecture is not None and self.base_python.platform == "win32":
-            uv_arch = {32: "x86", 64: "x86_64"}[architecture]
-            uv_imp = imp or ""
-            free_threaded_tag = "+freethreaded" if free_threaded else ""
-            version_spec = f"{uv_imp}-{base.major}.{base.minor}{free_threaded_tag}-windows-{uv_arch}-none"
-        else:
-            uv_imp = imp or ""
-            free_threaded_tag = "+freethreaded" if free_threaded else ""
-            if not base.major:  # pragma: win32 no cover
-                version_spec = f"{uv_imp}"
-            elif not base.minor:
-                version_spec = f"{uv_imp}{base.major}{free_threaded_tag}"
-            elif architecture or self.base_python.machine:
-                os_map = {
-                    "darwin": "macos",
-                    "linux": "linux",
-                    "windows": "windows",
-                }
-                uv_os = os_map.get(self.base_python.platform.lower(), "")
-                arch_map = {
-                    "arm64": "aarch64",
-                    "aarch64": "aarch64",
-                    "amd64": "x86_64",
-                    "x86_64": "i686" if (uv_os == "macos" and architecture == 32) else "x86_64",
-                    "x86": "i686",
-                    "i386": "i686",
-                    "i686": "i686",
-                }
 
-                libc_map = {
-                    "linux": self.base_python.extra.get("libc", "gnu").replace("glibc", "gnu"),
-                    "windows": "msvc",
-                }
-                uv_arch = arch_map.get((self.base_python.machine or "").lower(), "")
-                uv_libc = libc_map.get(uv_os, "none")
-                version_spec = f"{uv_imp}-{base.major}.{base.minor}{free_threaded_tag}" + (
-                    f"-{uv_os}-{uv_arch}-{uv_libc}" if all([uv_arch, uv_os, uv_libc]) else ""
-                )
-            else:
-                version_spec = f"{uv_imp}{base.major}.{base.minor}{free_threaded_tag}"
+        uv_imp = imp or ""
+        free_threaded_tag = "+freethreaded" if free_threaded else ""
+        version_spec_base = f"{uv_imp}{base.major}.{base.minor}{free_threaded_tag}"
+        if not base.major:  # pragma: win32 no cover
+            version_spec = f"{uv_imp}"
+        elif not base.minor:
+            version_spec = f"{uv_imp}{base.major}{free_threaded_tag}"
+        elif architecture or self.base_python.machine:
+            os_map = {
+                "darwin": "macos",
+                "linux": "linux",
+                "windows": "windows",
+            }
+            uv_os = os_map.get(self.base_python.platform.lower(), "")
+            arch_map = {
+                "arm64": "aarch64",
+                "aarch64": "aarch64",
+                "amd64": "x86_64",
+                "x86_64": "i686" if (uv_os == "macos" and architecture == 32) else "x86_64",
+                "x86": "i686",
+                "i386": "i686",
+                "i686": "i686",
+            }
+
+            libc_map = {
+                "linux": self.base_python.extra.get("libc", "gnu").replace("glibc", "gnu"),
+                "windows": "msvc",
+            }
+            uv_arch = arch_map.get((self.base_python.machine or "").lower(), "")
+            uv_libc = libc_map.get(uv_os, "none")
+            version_spec = f"{version_spec_base}" + (
+                f"-{uv_os}-{uv_arch}-{uv_libc}" if all([uv_arch, uv_os, uv_libc]) else ""
+            )
+        else:
+            version_spec = version_spec_base
         return version_spec
 
     @cached_property
