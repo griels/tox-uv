@@ -356,7 +356,7 @@ class UvVenv(Python, ABC):
                 "aarch64": "aarch64",
                 "amd64": "x86_64",
                 "x86_64": "i686" if (uv_os == "macos" and architecture == 32) else "x86_64",
-                "x86": "i686",
+                "x86": "x86" if uv_os == "windows" else "i686",
                 "i386": "i686",
                 "i686": "i686",
             }
