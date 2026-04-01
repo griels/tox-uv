@@ -956,6 +956,28 @@ def test_env_version_spec_libc_windows() -> None:
         assert uv_venv.env_version_spec() == "cpython-3.11-windows-x86_64-none"
 
 
+def test_env_version_spec_machine_x86_windows() -> None:
+    uv_venv = _TestUvVenv(create_args=mock.MagicMock())
+    python_info = PythonInfo(
+        implementation="cpython",
+        version_info=VersionInfo(
+            major=3,
+            minor=11,
+            micro=9,
+            releaselevel="",
+            serial=0,
+        ),
+        version="",
+        is_64=False,
+        platform="windows",
+        extra={"architecture": None},
+        machine="x86",
+    )
+    uv_venv.set_base_python(python_info)
+    with mock.patch("sys.version_info", (0, 0, 0)):
+        assert uv_venv.env_version_spec() == "cpython-3.11-windows-x86-none"
+
+
 def test_relative_workdir_with_changedir(tox_project: ToxProjectCreator) -> None:
     project = tox_project({
         "tox.ini": """\
