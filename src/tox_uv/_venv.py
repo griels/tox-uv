@@ -339,7 +339,6 @@ class UvVenv(Python, ABC):
 
         uv_imp = imp or ""
         free_threaded_tag = "+freethreaded" if free_threaded else ""
-        version_spec_base = f"{uv_imp}{base.major}.{base.minor}{free_threaded_tag}"
         if not base.major:  # pragma: win32 no cover
             version_spec = f"{uv_imp}"
         elif not base.minor:
@@ -365,13 +364,20 @@ class UvVenv(Python, ABC):
                 "linux": self.base_python.extra.get("libc", "gnu").replace("glibc", "gnu"),
                 "windows": "msvc",
             }
-            uv_arch = arch_map.get((self.base_python.machine or "").lower(), "")
+            uv_arch_fallback_map = {"windows": {32: "x86", 64: "x86_64"}}
+            uv_arch_fallback = (
+                uv_arch_fallback_map.get(uv_os, {}).get(architecture, "")
+                if isinstance(architecture, int)
+                else ""
+            )
+            base_python_machine = (self.base_python.machine or uv_arch_fallback).lower()
+            uv_arch = arch_map.get(base_python_machine, "")
             uv_libc = libc_map.get(uv_os, "none")
-            version_spec = f"{version_spec_base}" + (
+            version_spec = f"{uv_imp}-{base.major}.{base.minor}{free_threaded_tag}" + (
                 f"-{uv_os}-{uv_arch}-{uv_libc}" if all([uv_arch, uv_os, uv_libc]) else ""
             )
         else:
-            version_spec = version_spec_base
+            version_spec = f"{uv_imp}{base.major}.{base.minor}{free_threaded_tag}"
         return version_spec
 
     @cached_property
