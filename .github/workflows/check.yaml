@@ -42,10 +42,7 @@ jobs:
           - env: "3.14"
             os: macos-15
             suffix: -macos-aarch64-none
-          - env: "meta-3.14-arm64"
-            os: macos-15
-            suffix: -macos-none
-          - env: "meta-3.14-x86_64"
+          - env: "3.14"
             os: macos-15
             suffix: -macos-x86_64-none
           - env: meta-3.14
