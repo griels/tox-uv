@@ -31,6 +31,7 @@ jobs:
           - type
           - dev
           - pkg_meta
+        suffix: "linux-gnu"
         os:
           - ubuntu-24.04
         include:
@@ -74,7 +75,7 @@ jobs:
             UV_VERSION="cpython-$VERSION"
           else
             # For non-arch-specific values, keep existing behavior.
-            UV_VERSION="cpython-$VERSION-x86_64${{ matrix.suffix || '-linux' }}"
+            UV_VERSION="cpython-$VERSION-x86_64${{ matrix.suffix }}"
           fi
 
           uv python install --python-preference only-managed "$UV_VERSION"
