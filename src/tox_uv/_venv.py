@@ -22,10 +22,12 @@ from tox.execute.request import StdinSource
 from tox.tox_env.errors import Skip
 from tox.tox_env.python.api import PY_FACTORS_RE, PY_FACTORS_RE_EXPLICIT_VERSION, Python, PythonInfo, VersionInfo
 from virtualenv.app_data import make_app_data
-from virtualenv.discovery.cached_py_info import from_exe
-from virtualenv.discovery.py_info import PythonInfo as VirtualenvPythonInfo
-from virtualenv.discovery.py_spec import PythonSpec
 
+from python_discovery._cached_py_info import from_exe
+from python_discovery._py_info import PythonInfo as VirtualenvPythonInfo
+from python_discovery._py_spec import PythonSpec, BasePythonSpec
+
+from python_discovery._uv._normalizer import UVNormalizer
 from ._installer import UvInstaller
 
 if TYPE_CHECKING:
@@ -344,48 +346,20 @@ class UvVenv(Python, ABC):
     def env_version_spec(self) -> str:
         if executable := self.base_python.extra.get("executable"):
             return executable
-        base = self.base_python.version_info
-        imp = self.base_python.impl_lower
-        architecture = self.base_python.extra.get("architecture")
-        free_threaded = self.base_python.free_threaded
-
-        uv_imp = imp or ""
-        free_threaded_tag = "+freethreaded" if free_threaded else ""
-        if not base.major:  # pragma: win32 no cover
-            version_spec = f"{uv_imp}"
-        elif not base.minor:
-            version_spec = f"{uv_imp}{base.major}{free_threaded_tag}"
-        elif architecture or self.base_python.machine:
-
-            def normalise_os(raw_os: str) -> str:
-                return self._OS_MAP.get(raw_os, raw_os)
-
-            uv_os = normalise_os(self.base_python.platform.lower())
-            machine_map = {
-                "arm64": "aarch64",
-                "aarch64": "aarch64",
-                "amd64": "x86_64",
-                "x86_64": (
-                    {"macos": {32: "i686"}}.get(uv_os, {}).get(architecture, "x86_64")
-                    if isinstance(architecture, int)
-                    else "x86_64"
-                ),
-                "x86": {"windows": "x86"}.get(uv_os, "i686"),
-                "i386": "i686",
-                "i686": "i686",
-            }
-            machine_fallback = (
-                self._NOMACHINE_FALLBACK.get(uv_os, {}).get(architecture, "") if isinstance(architecture, int) else ""
+        return UVNormalizer.env_version_spec(
+            BasePythonSpec(
+                self.base_python.impl_lower,
+                self.base_python.version_info.major,
+                self.base_python.version_info.minor,
+                self.base_python.version_info.micro,
+                architecture=self.base_python.extra.get("architecture"),
+                free_threaded=self.base_python.free_threaded,
+                machine=self.base_python.machine,
+                operating_system=self.base_python.platform,
+                libc=self.base_python.extra.get("libc"),
             )
-            base_python_machine = (self.base_python.machine or "").lower()
-            uv_machine = machine_map.get(base_python_machine, machine_fallback)
-            uv_libc = self._LIBC_MAP.get(uv_os, {}).get(self.base_python.extra.get("libc", "").lower(), "none")
-            version_spec = f"{uv_imp}-{base.major}.{base.minor}{free_threaded_tag}" + (
-                f"-{uv_os}-{uv_machine}-{uv_libc}" if all([uv_machine, uv_os, uv_libc]) else ""
-            )
-        else:
-            version_spec = f"{uv_imp}{base.major}.{base.minor}{free_threaded_tag}"
-        return version_spec
+        )
+
 
     @cached_property
     def _py_info(self) -> PythonInfo:  # pragma: win32 no cover
