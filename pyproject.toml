@@ -40,9 +40,10 @@ dynamic = [
 ]
 dependencies = [
   "packaging>=26",
+  "python-discovery@git+https://github.com/griels/python-discovery.git@1.2.2",
   "tomli>=2.4; python_version<'3.11'",
   "tox<5,>=4.52",
-  "typing-extensions>=4.15; python_version<'3.10'",
+  "typing-extensions>=4.15; python_version<'3.10'"
 ]
 urls.Changelog = "https://github.com/tox-dev/tox-uv/releases"
 urls.Documentation = "https://github.com/tox-dev/tox-uv#tox-uv"
@@ -79,6 +80,8 @@ build.targets.sdist.include = [
 build.targets.wheel.packages = [ "src/tox_uv" ]
 version.source = "vcs"
 
+[tool.hatch.metadata]
+allow-direct-references = true
 [tool.ruff]
 line-length = 120
 fix = true
